@@ -1,8 +1,8 @@
 package chipmunk
 
 import (
-	"github.com/vova616/chipmunk/transform"
-	"github.com/vova616/chipmunk/vect"
+	"github.com/TheZeroSlave/chipmunk/transform"
+	"github.com/TheZeroSlave/chipmunk/vect"
 	"math"
 )
 

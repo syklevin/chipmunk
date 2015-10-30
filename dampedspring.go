@@ -3,8 +3,8 @@ package chipmunk
 import (
 	"math"
 
-	"github.com/vova616/chipmunk/transform"
-	"github.com/vova616/chipmunk/vect"
+	"github.com/TheZeroSlave/chipmunk/transform"
+	"github.com/TheZeroSlave/chipmunk/vect"
 )
 
 type DampedSpring struct {
