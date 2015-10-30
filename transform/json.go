@@ -1,8 +1,8 @@
 package transform
 
 import (
-	"encoding/json" 
-	"github.com/vova616/chipmunk/vect"
+	"encoding/json"
+	"github.com/TheZeroSlave/chipmunk/vect"
 	"log"
 )
 
