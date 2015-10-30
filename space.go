@@ -21,11 +21,14 @@ type Space struct {
 	/// Gravity to pass to rigid bodies when integrating velocity.
 	Gravity vect.Vect
 
-	/// Damping rate expressed as the fraction of velocity bodies retain each second.
+	/// Linear damping rate expressed as the fraction of linear velocity bodies retain each second.
 	/// A value of 0.9 would mean that each body's velocity will drop 10% per second.
 	/// The default value is 1.0, meaning no damping is applied.
 	/// @note This damping value is different than those of cpDampedSpring and cpDampedRotarySpring.
-	damping vect.Float
+	LinearDamping vect.Float
+
+	/// Angular damping is the same as linear damping, but for angular velocity
+	AngularDamping vect.Float
 
 	/// Speed threshold for a body to be considered idle.
 	/// The default value of 0 means to let the space guess a good threshold based on gravity.
@@ -97,7 +100,8 @@ func NewSpace() (space *Space) {
 
 	space.Gravity = vect.Vector_Zero
 
-	space.damping = 1
+	space.LinearDamping = 1.0
+	space.AngularDamping = 1.0
 
 	space.collisionSlop = 0.5
 	space.collisionBias = vect.Float(math.Pow(1.0-0.1, 60))
@@ -231,15 +235,16 @@ func (space *Space) Step(dt vect.Float) {
 		con.PreStep(dt)
 	}
 
-	damping := vect.Float(math.Pow(float64(space.damping), float64(dt)))
+	ldamping := vect.Float(math.Pow(float64(space.LinearDamping), float64(dt)))
+	adamping := vect.Float(math.Pow(float64(space.AngularDamping), float64(dt)))
 
 	for _, body := range bodies {
 		if body.Enabled {
 			if body.IgnoreGravity {
-				body.UpdateVelocity(vect.Vector_Zero, damping, dt)
+				body.UpdateVelocity(vect.Vector_Zero, ldamping, adamping, dt)
 				continue
 			}
-			body.UpdateVelocity(space.Gravity, damping, dt)
+			body.UpdateVelocity(space.Gravity, ldamping, adamping, dt)
 		}
 	}
 

@@ -2,7 +2,7 @@ package chipmunk
 
 import (
 	"github.com/vova616/chipmunk/vect"
-	//. "github.com/vova616/chipmunk/transform" 
+	//. "github.com/vova616/chipmunk/transform"
 	"math"
 )
 
@@ -348,15 +348,15 @@ func (body *Body) UpdatePosition(dt vect.Float) {
 	body.w_bias = 0.0
 }
 
-func (body *Body) UpdateVelocity(gravity vect.Vect, damping, dt vect.Float) {
+func (body *Body) UpdateVelocity(gravity vect.Vect, ldamping, adamping, dt vect.Float) {
 	if body.UpdateVelocityFunc != nil {
-		body.UpdateVelocityFunc(body, gravity, damping, dt)
+		body.UpdateVelocityFunc(body, gravity, ldamping, dt)
 		return
 	}
-	body.v = vect.Add(vect.Mult(body.v, damping), vect.Mult(vect.Add(gravity, vect.Mult(body.f, body.m_inv)), dt))
+	body.v = vect.Add(vect.Mult(body.v, ldamping), vect.Mult(vect.Add(gravity, vect.Mult(body.f, body.m_inv)), dt))
 
-	body.w = (body.w * damping) + (body.t * body.i_inv * dt)
+	body.w = (body.w * adamping) + (body.t * body.i_inv * dt)
 
 	body.f = vect.Vector_Zero
-
+	body.t = 0.0
 }
