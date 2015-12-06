@@ -691,6 +691,8 @@ func SpaceCollideShapes(a, b *Shape, space *Space) {
 		if arb.ShapeB.Body.CallbackHandler != nil {
 			preSolveResult = preSolveResult || arb.ShapeB.Body.CallbackHandler.CollisionPreSolve(arb)
 		}
+	} else {
+		preSolveResult = false
 	}
 
 	if preSolveResult &&
