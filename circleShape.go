@@ -10,7 +10,7 @@ type CircleShape struct {
 	// Center of the circle. Call Update() on the parent shape if changed.
 	Position vect.Vect
 	// Radius of the circle. Call Update() on the parent shape if changed.
-	Radius vect.Float
+	Radius float32
 	// Global center of the circle. Do not touch!
 	Tc vect.Vect
 }
@@ -20,7 +20,7 @@ func NewCircle(pos vect.Vect, radius float32) *Shape {
 	shape := newShape()
 	circle := &CircleShape{
 		Position: pos,
-		Radius:   vect.Float(radius),
+		Radius:   float32(radius),
 		Shape:    shape,
 	}
 	shape.ShapeClass = circle
@@ -32,8 +32,8 @@ func (circle *CircleShape) ShapeType() ShapeType {
 	return ShapeType_Circle
 }
 
-func (circle *CircleShape) Moment(mass float32) vect.Float {
-	return (vect.Float(mass) * (0.5 * (circle.Radius * circle.Radius))) + vect.LengthSqr(circle.Position)
+func (circle *CircleShape) Moment(mass float32) float32 {
+	return (float32(mass) * (0.5 * (circle.Radius * circle.Radius))) + vect.LengthSqr(circle.Position)
 }
 
 // Recalculates the global center of the circle and the the bounding box.

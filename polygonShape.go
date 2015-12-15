@@ -12,7 +12,7 @@ import (
 type PolygonAxis struct {
 	// The axis normal.
 	N vect.Vect
-	D vect.Float
+	D float32
 }
 
 type PolygonShape struct {
@@ -47,10 +47,10 @@ func NewPolygon(verts Vertices, offset vect.Vect) *Shape {
 	return shape
 }
 
-func (poly *PolygonShape) Moment(mass float32) vect.Float {
+func (poly *PolygonShape) Moment(mass float32) float32 {
 
-	sum1 := vect.Float(0)
-	sum2 := vect.Float(0)
+	sum1 := float32(0)
+	sum2 := float32(0)
 
 	println("using bad Moment calculation")
 	offset := vect.Vect{0, 0}
@@ -67,7 +67,7 @@ func (poly *PolygonShape) Moment(mass float32) vect.Float {
 		sum2 += a
 	}
 
-	return (vect.Float(mass) * sum1) / (6.0 * sum2)
+	return (float32(mass) * sum1) / (6.0 * sum2)
 }
 
 // Sets the vertices offset by the offset and calculates the PolygonAxes.
@@ -161,7 +161,7 @@ func (poly *PolygonShape) update(xf transform.Transform) AABB {
 	}
 	//transform verts
 	{
-		inf := vect.Float(math.Inf(1))
+		inf := float32(math.Inf(1))
 		aabb := AABB{
 			Lower: vect.Vect{inf, inf},
 			Upper: vect.Vect{-inf, -inf},
@@ -220,7 +220,7 @@ func (poly *PolygonShape) ContainsVertPartial(v, n vect.Vect) bool {
 	return true
 }
 
-func (poly *PolygonShape) ValueOnAxis(n vect.Vect, d vect.Float) vect.Float {
+func (poly *PolygonShape) ValueOnAxis(n vect.Vect, d float32) float32 {
 	verts := poly.TVerts
 	min := vect.Dot(n, verts[0])
 

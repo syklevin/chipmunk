@@ -40,10 +40,10 @@ type Arbiter struct {
 
 	/// Calculated value to use for the elasticity coefficient.
 	/// Override in a pre-solve collision handler for custom behavior.
-	e vect.Float
+	e float32
 	/// Calculated value to use for the friction coefficient.
 	/// Override in a pre-solve collision handler for custom behavior.
-	u vect.Float
+	u float32
 	/// Calculated value to use for applying surface velocities.
 	/// Override in a pre-solve collision handler for custom behavior.
 	Surface_vr vect.Vect
@@ -104,7 +104,7 @@ func (arb *Arbiter) Ignore() {
 	arb.state = arbiterStateIgnore
 }
 
-func (arb *Arbiter) preStep(inv_dt, slop, bias vect.Float) {
+func (arb *Arbiter) preStep(inv_dt, slop, bias float32) {
 
 	a := arb.ShapeA.Body
 	b := arb.ShapeB.Body
@@ -158,7 +158,7 @@ func (arb *Arbiter) preStep(inv_dt, slop, bias vect.Float) {
 	}
 }
 
-func (arb *Arbiter) preStep2(inv_dt, slop, bias vect.Float) {
+func (arb *Arbiter) preStep2(inv_dt, slop, bias float32) {
 
 	a := arb.ShapeA.Body
 	b := arb.ShapeB.Body
@@ -189,7 +189,7 @@ func (arb *Arbiter) preStep2(inv_dt, slop, bias vect.Float) {
 }
 
 //Optimized applyCachedImpulse
-func (arb *Arbiter) applyCachedImpulse(dt_coef vect.Float) {
+func (arb *Arbiter) applyCachedImpulse(dt_coef float32) {
 	if arb.state == arbiterStateFirstColl && arb.NumContacts > 0 {
 		return
 	}
@@ -215,7 +215,7 @@ func (arb *Arbiter) applyCachedImpulse(dt_coef vect.Float) {
 	}
 }
 
-func (arb *Arbiter) applyCachedImpulse2(dt_coef vect.Float) {
+func (arb *Arbiter) applyCachedImpulse2(dt_coef float32) {
 	if arb.state == arbiterStateFirstColl && arb.NumContacts > 0 {
 		return
 	}

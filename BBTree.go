@@ -119,7 +119,7 @@ func (tree *BBTree) GetBB(obj Indexable) AABB {
 	v, ok := obj.Velocity()
 	if ok {
 		bb := obj.AABB()
-		coef := vect.Float(0.1)
+		coef := float32(0.1)
 
 		l := bb.Lower.X
 		b := bb.Lower.Y

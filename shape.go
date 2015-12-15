@@ -30,9 +30,9 @@ type Shape struct {
 	IsSensor bool
 
 	/// Coefficient of restitution. (elasticity)
-	e vect.Float
+	e float32
 	/// Coefficient of friction.
-	u vect.Float
+	u float32
 	/// Surface velocity used when solving for friction.
 	Surface_v vect.Vect
 
@@ -62,11 +62,11 @@ func (shape *Shape) Velocity() (vect.Vect, bool) {
 	return shape.Body.v, shape.velocityIndexed
 }
 
-func (shape *Shape) SetFriction(friction vect.Float) {
+func (shape *Shape) SetFriction(friction float32) {
 	shape.u = friction
 }
 
-func (shape *Shape) SetElasticity(e vect.Float) {
+func (shape *Shape) SetElasticity(e float32) {
 	shape.e = e
 }
 

@@ -6,18 +6,18 @@ import (
 )
 
 func (v Vect) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&[2]Float{v.X, v.Y})
+	return json.Marshal(&[2]float32{v.X, v.Y})
 }
 
 func (v *Vect) UnmarshalJSON(data []byte) error {
-	vectData := [2]Float{}
+	vectData := [2]float32{}
 
 	//try unmarshalling array form
 	err := json.Unmarshal(data, &vectData)
 	if err != nil {
 		//try other form
 		vectData := struct {
-			X, Y Float
+			X, Y float32
 		}{}
 
 		err := json.Unmarshal(data, &vectData)

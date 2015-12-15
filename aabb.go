@@ -21,7 +21,7 @@ func (aabb *AABB) Valid() bool {
 	return aabb.Lower.X <= aabb.Upper.X && aabb.Lower.Y <= aabb.Upper.Y
 }
 
-func NewAABB(l, b, r, t vect.Float) AABB {
+func NewAABB(l, b, r, t float32) AABB {
 	return AABB{vect.Vect{l, b}, vect.Vect{r, t}}
 }
 
@@ -58,7 +58,7 @@ func (aabb *AABB) Extents() vect.Vect {
 	return vect.Mult(vect.Sub(aabb.Upper, aabb.Lower), .5)
 }
 
-func (aabb *AABB) Perimeter() vect.Float {
+func (aabb *AABB) Perimeter() float32 {
 	w := vect.Sub(aabb.Upper, aabb.Lower)
 	return 2 * (w.X + w.Y)
 }
@@ -88,23 +88,23 @@ func Expand(a AABB, v vect.Vect) AABB {
 }
 
 //returns the area of the bounding box.
-func (aabb *AABB) Area() vect.Float {
+func (aabb *AABB) Area() float32 {
 	return (aabb.Upper.X - aabb.Lower.X) * (aabb.Upper.Y - aabb.Lower.Y)
 }
 
-func MergedArea(a, b AABB) vect.Float {
+func MergedArea(a, b AABB) float32 {
 	return (vect.FMax(a.Upper.X, b.Upper.X) - vect.FMin(a.Lower.X, b.Lower.X)) * (vect.FMax(a.Upper.Y, b.Upper.Y) - vect.FMin(a.Lower.Y, b.Lower.Y))
 }
 
-func MergedAreaPtr(a, b *AABB) vect.Float {
+func MergedAreaPtr(a, b *AABB) float32 {
 	return (vect.FMax(a.Upper.X, b.Upper.X) - vect.FMin(a.Lower.X, b.Lower.X)) * (vect.FMax(a.Upper.Y, b.Upper.Y) - vect.FMin(a.Lower.Y, b.Lower.Y))
 }
 
-func ProximityPtr(a, b *AABB) vect.Float {
+func ProximityPtr(a, b *AABB) float32 {
 	return vect.FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + vect.FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
 }
 
-func Proximity(a, b AABB) vect.Float {
+func Proximity(a, b AABB) float32 {
 	return vect.FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + vect.FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
 }
 

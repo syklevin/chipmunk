@@ -14,7 +14,7 @@ type PivotJoint struct {
 	k1, k2 vect.Vect
 
 	jAcc    vect.Vect
-	jMaxLen vect.Float
+	jMaxLen float32
 	bias    vect.Vect
 }
 
@@ -26,7 +26,7 @@ func NewPivotJoint(a, b *Body) *PivotJoint {
 	return NewPivotJointAnchor(a, b, vect.Vector_Zero, vect.Vector_Zero)
 }
 
-func (this *PivotJoint) PreStep(dt vect.Float) {
+func (this *PivotJoint) PreStep(dt float32) {
 	a, b := this.BodyA, this.BodyB
 
 	this.r1 = transform.RotateVect(this.Anchor1, transform.Rotation{a.rot.X, a.rot.Y})
@@ -44,11 +44,11 @@ func (this *PivotJoint) PreStep(dt vect.Float) {
 	this.bias = vect.Clamp(vect.Mult(delta, -bias_coef(this.ErrorBias, dt)/dt), this.MaxBias)
 }
 
-func bias_coef(errorBias, dt vect.Float) vect.Float {
-	return vect.Float(1.0 - math.Pow(float64(errorBias), float64(dt)))
+func bias_coef(errorBias, dt float32) float32 {
+	return float32(1.0 - math.Pow(float64(errorBias), float64(dt)))
 }
 
-func (this *PivotJoint) ApplyCachedImpulse(dt_coef vect.Float) {
+func (this *PivotJoint) ApplyCachedImpulse(dt_coef float32) {
 	a, b := this.BodyA, this.BodyB
 	apply_impulses(a, b, this.r1, this.r2, vect.Mult(this.jAcc, dt_coef))
 }
@@ -69,7 +69,7 @@ func (this *PivotJoint) ApplyImpulse() {
 	apply_impulses(a, b, this.r1, this.r2, j)
 }
 
-func (this *PivotJoint) Impulse() vect.Float {
+func (this *PivotJoint) Impulse() float32 {
 	return vect.Length(this.jAcc)
 }
 
@@ -83,10 +83,10 @@ func k_tensor(a, b *Body, r1, r2 vect.Vect, k1, k2 *vect.Vect) {
 	m_sum := a.m_inv + b.m_inv
 
 	// start with I*m_sum
-	k11 := vect.Float(m_sum)
-	k12 := vect.Float(0)
-	k21 := vect.Float(0)
-	k22 := vect.Float(m_sum)
+	k11 := float32(m_sum)
+	k12 := float32(0)
+	k21 := float32(0)
+	k22 := float32(m_sum)
 
 	// add the influence from r1
 	a_i_inv := a.i_inv

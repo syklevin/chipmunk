@@ -12,15 +12,15 @@ type BoxShape struct {
 	Polygon *PolygonShape
 	verts   [4]vect.Vect
 	// The width of the box. Call UpdatePoly() if changed.
-	Width vect.Float
+	Width float32
 	// The height of the box. Call UpdatePoly() if changed.
-	Height vect.Float
+	Height float32
 	// The center of the box. Call UpdatePoly() if changed.
 	Position vect.Vect
 }
 
 // Creates a new BoxShape with given position, width and height.
-func NewBox(pos vect.Vect, w, h vect.Float) *Shape {
+func NewBox(pos vect.Vect, w, h float32) *Shape {
 	shape := newShape()
 
 	box := &BoxShape{
@@ -55,8 +55,8 @@ func NewBox(pos vect.Vect, w, h vect.Float) *Shape {
 	return shape
 }
 
-func (box *BoxShape) Moment(mass float32) vect.Float {
-	return (vect.Float(mass) * (box.Width*box.Width + box.Height*box.Height) / 12.0)
+func (box *BoxShape) Moment(mass float32) float32 {
+	return (float32(mass) * (box.Width*box.Width + box.Height*box.Height) / 12.0)
 }
 
 // Recalculates the internal Polygon with the Width, Height and Position.

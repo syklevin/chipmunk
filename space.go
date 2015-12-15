@@ -25,30 +25,30 @@ type Space struct {
 	/// A value of 0.9 would mean that each body's velocity will drop 10% per second.
 	/// The default value is 1.0, meaning no damping is applied.
 	/// @note This damping value is different than those of cpDampedSpring and cpDampedRotarySpring.
-	LinearDamping vect.Float
+	LinearDamping float32
 
 	/// Angular damping is the same as linear damping, but for angular velocity
-	AngularDamping vect.Float
+	AngularDamping float32
 
 	/// Speed threshold for a body to be considered idle.
 	/// The default value of 0 means to let the space guess a good threshold based on gravity.
-	idleSpeedThreshold vect.Float
+	idleSpeedThreshold float32
 
 	/// Time a group of bodies must remain idle in order to fall asleep.
 	/// Enabling sleeping also implicitly enables the the contact graph.
 	/// The default value of INFINITY disables the sleeping algorithm.
-	sleepTimeThreshold vect.Float
+	sleepTimeThreshold float32
 
 	/// Amount of encouraged penetration between colliding shapes.
 	/// Used to reduce oscillating contacts and keep the collision cache warm.
 	/// Defaults to 0.1. If you have poor simulation quality,
 	/// increase this number as much as possible without allowing visible amounts of overlap.
-	collisionSlop vect.Float
+	collisionSlop float32
 
 	/// Determines how fast overlapping shapes are pushed apart.
 	/// Expressed as a fraction of the error remaining after each second.
 	/// Defaults to pow(1.0 - 0.1, 60.0) meaning that Chipmunk fixes 10% of overlap each frame at 60Hz.
-	collisionBias vect.Float
+	collisionBias float32
 
 	/// Number of frames that contact information should persist.
 	/// Defaults to 3. There is probably never a reason to change this value.
@@ -58,7 +58,7 @@ type Space struct {
 	/// Disabled by default for a small performance boost. Enabled implicitly when the sleeping feature is enabled.
 	enableContactGraph bool
 
-	curr_dt vect.Float
+	curr_dt float32
 
 	Constraints []Constraint
 
@@ -104,7 +104,7 @@ func NewSpace() (space *Space) {
 	space.AngularDamping = 1.0
 
 	space.collisionSlop = 0.5
-	space.collisionBias = vect.Float(math.Pow(1.0-0.1, 60))
+	space.collisionBias = float32(math.Pow(1.0-0.1, 60))
 	space.collisionPersistence = 3
 
 	space.Constraints = make([]Constraint, 0)
@@ -157,7 +157,7 @@ func (space *Space) Destroy() {
 	space.ContactBuffer = nil
 }
 
-func (space *Space) Step(dt vect.Float) {
+func (space *Space) Step(dt float32) {
 
 	// don't step if the timestep is 0!
 	if dt == 0 {
@@ -224,8 +224,8 @@ func (space *Space) Step(dt vect.Float) {
 	}
 
 	slop := space.collisionSlop
-	biasCoef := vect.Float(1.0 - math.Pow(float64(space.collisionBias), float64(dt)))
-	invdt := vect.Float(1 / dt)
+	biasCoef := float32(1.0 - math.Pow(float64(space.collisionBias), float64(dt)))
+	invdt := float32(1 / dt)
 	for _, arb := range space.Arbiters {
 		arb.preStep(invdt, slop, biasCoef)
 	}
@@ -235,8 +235,8 @@ func (space *Space) Step(dt vect.Float) {
 		con.PreStep(dt)
 	}
 
-	ldamping := vect.Float(math.Pow(float64(space.LinearDamping), float64(dt)))
-	adamping := vect.Float(math.Pow(float64(space.AngularDamping), float64(dt)))
+	ldamping := float32(math.Pow(float64(space.LinearDamping), float64(dt)))
+	adamping := float32(math.Pow(float64(space.AngularDamping), float64(dt)))
 
 	for _, body := range bodies {
 		if body.Enabled {
@@ -248,7 +248,7 @@ func (space *Space) Step(dt vect.Float) {
 		}
 	}
 
-	dt_coef := vect.Float(0)
+	dt_coef := float32(0)
 	if prev_dt != 0 {
 		dt_coef = dt / prev_dt
 	}
@@ -481,14 +481,14 @@ func (space *Space) ActiveBody(body *Body) error {
 	return nil
 }
 
-func (space *Space) ProcessComponents(dt vect.Float) {
+func (space *Space) ProcessComponents(dt float32) {
 
 	sleep := math.IsInf(float64(space.sleepTimeThreshold), 0)
 	bodies := space.Bodies
 	_ = bodies
 	if sleep {
 		dv := space.idleSpeedThreshold
-		dvsq := vect.Float(0)
+		dvsq := float32(0)
 		if dv == 0 {
 			dvsq = dv * dv
 		} else {
@@ -496,7 +496,7 @@ func (space *Space) ProcessComponents(dt vect.Float) {
 		}
 
 		for _, body := range space.Bodies {
-			keThreshold := vect.Float(0)
+			keThreshold := float32(0)
 			if dvsq != 0 {
 				keThreshold = body.m * dvsq
 			}
@@ -725,6 +725,88 @@ func queryRejectShapes(a, b *Shape) bool {
 func queryReject(a, b *Shape) bool {
 	//|| (a.Layer & b.Layer) != 0
 	return a.Body == b.Body || (a.Group != 0 && a.Group == b.Group) || (a.Layer&b.Layer) == 0 || !a.Body.Enabled || !b.Body.Enabled || (math.IsInf(float64(a.Body.m), 0) && math.IsInf(float64(b.Body.m), 0)) || !TestOverlapPtr(&a.BB, &b.BB)
+}
+
+type RayCast struct {
+	begin vect.Vect
+	dir vect.Vect
+}
+
+const EPS = 0.00001
+
+func RayAgainstPolygon(c *RayCast, poly *PolygonShape) bool {
+	for i, axis := range poly.TAxes {
+		cosAngle := vect.Dot(c.dir, axis.N)
+		if cosAngle < EPS && cosAngle >= -EPS {
+			return false
+		}
+		t := -(vect.Dot(c.begin, axis.N) - axis.D) / cosAngle
+		if t > 1.0 || t < 0.0 {
+			return false
+		}
+		//check if point belongs to polygon line
+		point := vect.Add(c.begin, vect.Mult(c.dir, t))
+		v1 := poly.TVerts[i]
+		v2 := poly.TVerts[(i+1)%poly.NumVerts]
+		polyDir := vect.Sub(v2, v1)
+
+		polyT := float32(-1.0)
+		if polyDir.X < EPS || polyDir.X > -EPS {
+			polyT = (point.Y - v1.Y) / polyDir.Y
+		} else {
+			polyT = (point.Y - v1.Y) / polyDir.Y
+		}
+		if polyT >= 0.0 && polyT <= 1.0 {
+			return true
+		}
+	}
+	return false
+}
+
+func RayAgainstCircle(cast *RayCast, circle *CircleShape) bool {
+	fromRayToCircle := vect.Sub(cast.begin, circle.Tc)
+	a := cast.dir.LengthSqr()
+	b := 2.0 * vect.Dot(fromRayToCircle, cast.dir)
+	c := vect.Dot(fromRayToCircle, fromRayToCircle) - circle.Radius * circle.Radius
+
+	D := b * b - 4.0 * a * c
+
+	if (D < 0.0) {
+		return false
+	}
+	D = float32(math.Sqrt(float64(D)))
+	t1 := (-b - D) / (2.0 * a)
+	t2 := (-b + D) / (2.0 * a)
+
+	if (t1 >= 0.0 && t1 <= 1.0) || (t2 >= 0.0 && t2 <= 1.0) {
+		return true
+	}
+	return false
+}
+
+func (space *Space) RayCastAll(begin vect.Vect, end vect.Vect, direction vect.Vect, bodiesOut []*Body) {
+	rayCast := &RayCast{
+		begin: begin,
+		dir: vect.Sub(end, begin),
+	}
+	for _, body := range space.Bodies {
+		for _, shape := range body.Shapes {
+			shapeType := shape.ShapeType()
+			if shapeType == ShapeType_Polygon {
+				polygon := shape.GetAsPolygon()
+				if RayAgainstPolygon(rayCast, polygon) {
+					bodiesOut = append(bodiesOut, body)
+					break
+				}
+			} else if shapeType == ShapeType_Circle {
+				circle := shape.GetAsCircle()
+				if RayAgainstCircle(rayCast, circle) {
+					bodiesOut = append(bodiesOut, body)
+					break
+				}
+			}
+		}
+	}
 }
 
 func (space *Space) AddBody(body *Body) *Body {

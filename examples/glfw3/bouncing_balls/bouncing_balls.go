@@ -72,9 +72,9 @@ func addBall() {
 	ball := chipmunk.NewCircle(vect.Vector_Zero, float32(ballRadius))
 	ball.SetElasticity(0.95)
 
-	body := chipmunk.NewBody(vect.Float(ballMass), ball.Moment(float32(ballMass)))
-	body.SetPosition(vect.Vect{vect.Float(x), 600.0})
-	body.SetAngle(vect.Float(rand.Float32() * 2 * math.Pi))
+	body := chipmunk.NewBody(float32(ballMass), ball.Moment(float32(ballMass)))
+	body.SetPosition(vect.Vect{float32(x), 600.0})
+	body.SetAngle(float32(rand.Float32() * 2 * math.Pi))
 
 	body.AddShape(ball)
 	space.AddBody(body)
@@ -83,7 +83,7 @@ func addBall() {
 
 // step advances the physics engine and cleans up any balls that are off-screen
 func step(dt float32) {
-	space.Step(vect.Float(dt))
+	space.Step(float32(dt))
 
 	for i := 0; i < len(balls); i++ {
 		p := balls[i].Body.Position()

@@ -7,13 +7,13 @@ import (
 
 type Rotation struct {
 	//sine and cosine.
-	C, S vect.Float
+	C, S float32
 }
 
-func NewRotation(angle vect.Float) Rotation {
+func NewRotation(angle float32) Rotation {
 	return Rotation{
-		C: vect.Float(math.Cos(float64(angle))),
-		S: vect.Float(math.Sin(float64(angle))),
+		C: float32(math.Cos(float64(angle))),
+		S: float32(math.Sin(float64(angle))),
 	}
 }
 
@@ -22,13 +22,13 @@ func (rot *Rotation) SetIdentity() {
 	rot.C = 1
 }
 
-func (rot *Rotation) SetAngle(angle vect.Float) {
-	rot.C = vect.Float(math.Cos(float64(angle)))
-	rot.S = vect.Float(math.Sin(float64(angle)))
+func (rot *Rotation) SetAngle(angle float32) {
+	rot.C = float32(math.Cos(float64(angle)))
+	rot.S = float32(math.Sin(float64(angle)))
 }
 
-func (rot *Rotation) Angle() vect.Float {
-	return vect.Float(math.Atan2(float64(rot.S), float64(rot.C)))
+func (rot *Rotation) Angle() float32 {
+	return float32(math.Atan2(float64(rot.S), float64(rot.C)))
 }
 
 //rotates the input vector.
@@ -71,7 +71,7 @@ type Transform struct {
 	Rotation
 }
 
-func NewTransform(pos vect.Vect, angle vect.Float) Transform {
+func NewTransform(pos vect.Vect, angle float32) Transform {
 	return Transform{
 		Position: pos,
 		Rotation: NewRotation(angle),
@@ -90,7 +90,7 @@ func (xf *Transform) SetIdentity() {
 	xf.Rotation.SetIdentity()
 }
 
-func (xf *Transform) Set(pos vect.Vect, rot vect.Float) {
+func (xf *Transform) Set(pos vect.Vect, rot float32) {
 	xf.Position = pos
 	xf.SetAngle(rot)
 }

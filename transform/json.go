@@ -9,7 +9,7 @@ import (
 func (xf Transform) MarshalJSON() ([]byte, error) {
 	xfData := struct {
 		Position vect.Vect
-		Rotation vect.Float
+		Rotation float32
 	}{
 		Position: xf.Position,
 		Rotation: xf.Angle(),
@@ -23,7 +23,7 @@ func (xf *Transform) UnmarshalJSON(data []byte) error {
 
 	xfData := struct {
 		Position *vect.Vect
-		Rotation vect.Float
+		Rotation float32
 	}{
 		Position: &xf.Position,
 		Rotation: xf.Angle(),

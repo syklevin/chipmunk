@@ -6,18 +6,18 @@ import (
 
 type Contact struct {
 	p, n vect.Vect
-	dist vect.Float
+	dist float32
 
 	r1, r2               vect.Vect
-	nMass, tMass, bounce vect.Float
+	nMass, tMass, bounce float32
 
-	jnAcc, jtAcc, jBias vect.Float
-	bias                vect.Float
+	jnAcc, jtAcc, jBias float32
+	bias                float32
 
 	hash HashValue
 }
 
-func (con *Contact) reset(pos, norm vect.Vect, dist vect.Float, hash HashValue) {
+func (con *Contact) reset(pos, norm vect.Vect, dist float32, hash HashValue) {
 	con.p = pos
 	con.n = norm
 	con.dist = dist

@@ -38,7 +38,7 @@ type ShapeClass interface {
 	// Returns if the given point is located inside the shape.
 	TestPoint(point vect.Vect) bool
 
-	Moment(mass float32) vect.Float
+	Moment(mass float32) float32
 
 	Clone(s *Shape) ShapeClass
 	//marshalShape(shape *Shape) ([]byte, error)

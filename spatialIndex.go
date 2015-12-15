@@ -73,5 +73,5 @@ type SpatialIndexClass interface {
 	Stamp() time.Duration
 
 	Query(obj Indexable, aabb AABB, fnc SpatialIndexQueryFunc)
-	SegmentQuery(obj Indexable, a, b vect.Vect, t_exit vect.Float, fnc func())
+	SegmentQuery(obj Indexable, a, b vect.Vect, t_exit float32, fnc func())
 }

@@ -191,7 +191,7 @@ func box2box(contacts []*Contact, sA, sB *Shape) int {
 
 //END COLLISION HANDLERS
 
-func circle2circleQuery(p1, p2 vect.Vect, r1, r2 vect.Float, con *Contact) int {
+func circle2circleQuery(p1, p2 vect.Vect, r1, r2 float32, con *Contact) int {
 	minDist := r1 + r2
 
 	delta := vect.Sub(p2, p1)
@@ -201,11 +201,11 @@ func circle2circleQuery(p1, p2 vect.Vect, r1, r2 vect.Float, con *Contact) int {
 		return 0
 	}
 
-	dist := vect.Float(math.Sqrt(float64(distSqr)))
+	dist := float32(math.Sqrt(float64(distSqr)))
 
 	pDist := dist
 	if dist == 0.0 {
-		pDist = vect.Float(math.Inf(1))
+		pDist = float32(math.Inf(1))
 	}
 
 	pos := vect.Add(p1, vect.Mult(delta, 0.5+(r1-0.5*minDist)/pDist))
@@ -221,7 +221,7 @@ func circle2circleQuery(p1, p2 vect.Vect, r1, r2 vect.Float, con *Contact) int {
 	return 1
 }
 
-func segmentEncapQuery(p1, p2 vect.Vect, r1, r2 vect.Float, con *Contact, tangent vect.Vect) int {
+func segmentEncapQuery(p1, p2 vect.Vect, r1, r2 float32, con *Contact, tangent vect.Vect) int {
 	count := circle2circleQuery(p1, p2, r1, r2, con)
 	if vect.Dot(con.n, tangent) >= 0.0 {
 		return count
@@ -334,7 +334,7 @@ func poly2polyFunc(contacts []*Contact, poly1, poly2 *PolygonShape) int {
 	panic("Never reached")
 }
 
-func findMSA(poly *PolygonShape, axes []PolygonAxis, num int) (min_out vect.Float, min_index int) {
+func findMSA(poly *PolygonShape, axes []PolygonAxis, num int) (min_out float32, min_index int) {
 
 	min := poly.valueOnAxis(axes[0].N, axes[0].D)
 	if min > 0.0 {
@@ -354,7 +354,7 @@ func findMSA(poly *PolygonShape, axes []PolygonAxis, num int) (min_out vect.Floa
 	return min, min_index
 }
 
-func (poly *PolygonShape) valueOnAxis(n vect.Vect, d vect.Float) vect.Float {
+func (poly *PolygonShape) valueOnAxis(n vect.Vect, d float32) float32 {
 	verts := poly.TVerts
 	min := vect.Dot(n, verts[0])
 
@@ -377,7 +377,7 @@ func nextContact(contacts []*Contact, numPtr *int) *Contact {
 	panic("Never reached")
 }
 
-func findVerts(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.Vect, dist vect.Float) int {
+func findVerts(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.Vect, dist float32) int {
 	num := 0
 
 	for i, v := range poly1.TVerts {
@@ -402,7 +402,7 @@ func findVerts(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.Vect, dis
 	panic("Never reached")
 }
 
-func findVertsFallback(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.Vect, dist vect.Float) int {
+func findVertsFallback(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.Vect, dist float32) int {
 	num := 0
 
 	for i, v := range poly1.TVerts {
@@ -421,13 +421,13 @@ func findVertsFallback(contacts []*Contact, poly1, poly2 *PolygonShape, n vect.V
 	return num
 }
 
-func segValueOnAxis(seg *SegmentShape, n vect.Vect, d vect.Float) vect.Float {
+func segValueOnAxis(seg *SegmentShape, n vect.Vect, d float32) float32 {
 	a := vect.Dot(n, seg.Ta) - seg.Radius
 	b := vect.Dot(n, seg.Tb) - seg.Radius
 	return vect.FMin(a, b) - d
 }
 
-func findPoinsBehindSeg(contacts []*Contact, num *int, seg *SegmentShape, poly *PolygonShape, pDist, coef vect.Float) {
+func findPoinsBehindSeg(contacts []*Contact, num *int, seg *SegmentShape, poly *PolygonShape, pDist, coef float32) {
 	dta := vect.Cross(seg.Tn, seg.Ta)
 	dtb := vect.Cross(seg.Tn, seg.Tb)
 	n := vect.Mult(seg.Tn, coef)
