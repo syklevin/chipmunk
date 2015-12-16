@@ -732,9 +732,15 @@ type RayCast struct {
 	dir vect.Vect
 }
 
+type RayCastHit struct {
+	Body *Body
+	MinT float32
+}
+
+
 const EPS = 0.00001
 
-func RayAgainstPolygon(c *RayCast, poly *PolygonShape) bool {
+func RayAgainstPolygon(c *RayCast, poly *PolygonShape, outT *float32) bool {
 	for i, axis := range poly.TAxes {
 		cosAngle := vect.Dot(c.dir, axis.N)
 		if cosAngle < EPS && cosAngle >= -EPS {
@@ -757,13 +763,14 @@ func RayAgainstPolygon(c *RayCast, poly *PolygonShape) bool {
 			polyT = (point.Y - v1.Y) / polyDir.Y
 		}
 		if polyT >= 0.0 && polyT <= 1.0 {
+			*outT = t
 			return true
 		}
 	}
 	return false
 }
 
-func RayAgainstCircle(cast *RayCast, circle *CircleShape) bool {
+func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	fromRayToCircle := vect.Sub(cast.begin, circle.Tc)
 	a := cast.dir.LengthSqr()
 	b := 2.0 * vect.Dot(fromRayToCircle, cast.dir)
@@ -779,29 +786,44 @@ func RayAgainstCircle(cast *RayCast, circle *CircleShape) bool {
 	t2 := (-b + D) / (2.0 * a)
 
 	if (t1 >= 0.0 && t1 <= 1.0) || (t2 >= 0.0 && t2 <= 1.0) {
+		if t1 > t2 && t2 >= 0.0 {
+			*outT = t2
+		} else {
+			*outT = t1
+		}
 		return true
 	}
 	return false
 }
 
-func (space *Space) RayCastAll(begin vect.Vect, end vect.Vect, direction vect.Vect, bodiesOut []*Body) {
+func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect, hits []*RayCastHit) {
 	rayCast := &RayCast{
 		begin: begin,
-		dir: vect.Sub(end, begin),
+		dir: direction,
 	}
 	for _, body := range space.Bodies {
 		for _, shape := range body.Shapes {
 			shapeType := shape.ShapeType()
 			if shapeType == ShapeType_Polygon {
 				polygon := shape.GetAsPolygon()
-				if RayAgainstPolygon(rayCast, polygon) {
-					bodiesOut = append(bodiesOut, body)
+				var t float32 = 0.0
+				if RayAgainstPolygon(rayCast, polygon, &t) {
+					hit := RayCastHit{
+						Body: body,
+						MinT: t,
+					}
+					hits = append(hits, &hit)
 					break
 				}
 			} else if shapeType == ShapeType_Circle {
 				circle := shape.GetAsCircle()
-				if RayAgainstCircle(rayCast, circle) {
-					bodiesOut = append(bodiesOut, body)
+				var t float32 = 0.0
+				if RayAgainstCircle(rayCast, circle, &t) {
+					hit := RayCastHit{
+						Body: body,
+						MinT: t,
+					}
+					hits = append(hits, &hit)
 					break
 				}
 			}
