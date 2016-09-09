@@ -729,14 +729,13 @@ func queryReject(a, b *Shape) bool {
 
 type RayCast struct {
 	begin vect.Vect
-	dir vect.Vect
+	dir   vect.Vect
 }
 
 type RayCastHit struct {
 	Body *Body
 	MinT float32
 }
-
 
 const EPS = 0.00001
 
@@ -772,16 +771,16 @@ func RayAgainstPolygon(c *RayCast, poly *PolygonShape, outT *float32) bool {
 
 func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	fromRayToCircle := vect.Sub(cast.begin, circle.Tc)
-	a := cast.dir.LengthSqr()
+	a := vect.Dot(cast.dir, cast.dir)
 	b := 2.0 * vect.Dot(fromRayToCircle, cast.dir)
-	c := vect.Dot(fromRayToCircle, fromRayToCircle) - circle.Radius * circle.Radius
+	c := vect.Dot(fromRayToCircle, fromRayToCircle) - circle.Radius*circle.Radius
 
-	D := b * b - 4.0 * a * c
-
-	if (D < 0.0) {
+	D := b*b - 4.0*a*c
+	if D < 0.0 {
 		return false
 	}
 	D = float32(math.Sqrt(float64(D)))
+
 	t1 := (-b - D) / (2.0 * a)
 	t2 := (-b + D) / (2.0 * a)
 
@@ -796,10 +795,12 @@ func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	return false
 }
 
-func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect, hits []*RayCastHit) {
+func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect)[]*RayCastHit {
+	hits := []*RayCastHit{}
+
 	rayCast := &RayCast{
 		begin: begin,
-		dir: direction,
+		dir:   direction,
 	}
 	for _, body := range space.Bodies {
 		for _, shape := range body.Shapes {
@@ -829,6 +830,7 @@ func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect, hits []*Ray
 			}
 		}
 	}
+	return hits
 }
 
 func (space *Space) AddBody(body *Body) *Body {
