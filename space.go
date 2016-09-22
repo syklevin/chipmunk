@@ -787,7 +787,7 @@ func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	if (t1 >= 0.0 && t1 <= 1.0) || (t2 >= 0.0 && t2 <= 1.0) {
 		if t1 > t2 && t2 >= 0.0 {
 			*outT = t2
-		} else {
+		} else if t1 >= 0.0 {
 			*outT = t1
 		}
 		return true
@@ -802,34 +802,59 @@ func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect)[]*RayCastHi
 		begin: begin,
 		dir:   direction,
 	}
-	for _, body := range space.Bodies {
-		for _, shape := range body.Shapes {
-			shapeType := shape.ShapeType()
-			if shapeType == ShapeType_Polygon {
-				polygon := shape.GetAsPolygon()
-				var t float32 = 0.0
-				if RayAgainstPolygon(rayCast, polygon, &t) {
-					hit := RayCastHit{
-						Body: body,
-						MinT: t,
-					}
-					hits = append(hits, &hit)
-					break
+
+	end := begin
+	end.Add(direction)
+
+	var l, b, r, t float32
+	if begin.X > end.X {
+		l = end.X
+		r = begin.X
+	} else {
+		r = end.X
+		l = begin.X
+	}
+
+	if begin.Y > end.Y {
+		t = begin.Y
+		b = end.Y
+	} else {
+		b = begin.Y
+		t = end.Y
+	}
+
+	//first is nill
+	queryFunc := func(_, b Indexable) {
+		shape := b.Shape()
+		body := shape.Body
+
+		shapeType := shape.ShapeType()
+		if shapeType == ShapeType_Polygon {
+			polygon := shape.GetAsPolygon()
+			var t float32 = 0.0
+			if RayAgainstPolygon(rayCast, polygon, &t) {
+				hit := RayCastHit{
+					Body: body,
+					MinT: t,
 				}
-			} else if shapeType == ShapeType_Circle {
-				circle := shape.GetAsCircle()
-				var t float32 = 0.0
-				if RayAgainstCircle(rayCast, circle, &t) {
-					hit := RayCastHit{
-						Body: body,
-						MinT: t,
-					}
-					hits = append(hits, &hit)
-					break
+				hits = append(hits, &hit)
+			}
+		} else if shapeType == ShapeType_Circle {
+			circle := shape.GetAsCircle()
+			var t float32 = 0.0
+			if RayAgainstCircle(rayCast, circle, &t) {
+				hit := RayCastHit{
+					Body: body,
+					MinT: t,
 				}
+				hits = append(hits, &hit)
+			} else {
 			}
 		}
 	}
+
+	aabb := NewAABB(l, b, r, t)
+	space.activeShapes.Query(nil, aabb, queryFunc)
 	return hits
 }
 
