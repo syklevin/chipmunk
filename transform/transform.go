@@ -1,7 +1,7 @@
 package transform
 
 import (
-	"github.com/TheZeroSlave/chipmunk/vect"
+	"github.com/syklevin/chipmunk/vect"
 	"math"
 )
 

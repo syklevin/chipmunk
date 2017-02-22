@@ -2,8 +2,8 @@ package chipmunk
 
 import (
 	"fmt"
-	"github.com/TheZeroSlave/chipmunk/transform"
-	"github.com/TheZeroSlave/chipmunk/vect"
+	"github.com/syklevin/chipmunk/transform"
+	"github.com/syklevin/chipmunk/vect"
 
 	"time"
 )

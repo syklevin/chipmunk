@@ -1,6 +1,6 @@
 package vect
 
-import ( 
+import (
 	"math"
 	"testing"
 )
@@ -79,7 +79,7 @@ func TestMax(t *testing.T) {
 
 type distTest struct {
 	in1, in2 Vect
-	out      float64
+	out      float32
 }
 
 var distTests = []distTest{
@@ -88,8 +88,8 @@ var distTests = []distTest{
 	{Vect{2, 0}, Vect{0, 0}, 2},
 	{Vect{0, 0}, Vect{4, 0}, 4},
 	{Vect{0, 0}, Vect{0, 4}, 4},
-	{Vect{1, 1}, Vect{0, 0}, math.Sqrt(2)},
-	{Vect{1, 1}, Vect{2, 2}, math.Sqrt(2)},
+	{Vect{1, 1}, Vect{0, 0}, float32(math.Sqrt(2))},
+	{Vect{1, 1}, Vect{2, 2}, float32(math.Sqrt(2))},
 }
 
 func TestDist(t *testing.T) {

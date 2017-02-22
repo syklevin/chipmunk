@@ -3,8 +3,9 @@ package chipmunk
 import (
 	"errors"
 	"fmt"
-	"github.com/TheZeroSlave/chipmunk/transform"
-	"github.com/TheZeroSlave/chipmunk/vect"
+
+	"github.com/syklevin/chipmunk/transform"
+	"github.com/syklevin/chipmunk/vect"
 	//"github.com/davecgh/go-spew/spew"
 	"math"
 	"time"
@@ -795,7 +796,7 @@ func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	return false
 }
 
-func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect)[]*RayCastHit {
+func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect) []*RayCastHit {
 	hits := []*RayCastHit{}
 
 	rayCast := &RayCast{

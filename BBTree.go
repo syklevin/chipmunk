@@ -2,7 +2,7 @@ package chipmunk
 
 import (
 	//"container/list"
-	"github.com/TheZeroSlave/chipmunk/vect"
+	"github.com/syklevin/chipmunk/vect"
 	//"log"
 	"time"
 )

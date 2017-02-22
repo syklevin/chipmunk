@@ -1,8 +1,8 @@
 package chipmunk
 
 import (
-	"github.com/TheZeroSlave/chipmunk/transform"
-	"github.com/TheZeroSlave/chipmunk/vect"
+	"github.com/syklevin/chipmunk/transform"
+	"github.com/syklevin/chipmunk/vect"
 )
 
 //If Settings.AutoUpdateShapes is not set, call Update on the parent shape for changes to the A, B and Radius to take effect.
