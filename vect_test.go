@@ -1,4 +1,4 @@
-package vect
+package chipmunk
 
 import (
 	"math"

@@ -1,9 +1,6 @@
 package chipmunk
 
 import (
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
-
 	"log"
 	//"fmt"
 	"math"
@@ -11,7 +8,7 @@ import (
 
 type PolygonAxis struct {
 	// The axis normal.
-	N vect.Vect
+	N Vect
 	D float32
 }
 
@@ -32,7 +29,7 @@ type PolygonShape struct {
 
 // Creates a new PolygonShape with the given vertices offset by offset.
 // Returns nil if the given vertices are not valid.
-func NewPolygon(verts Vertices, offset vect.Vect) *Shape {
+func NewPolygon(verts Vertices, offset Vect) *Shape {
 	if verts == nil {
 		log.Printf("Error: no vertices passed!")
 		return nil
@@ -53,15 +50,15 @@ func (poly *PolygonShape) Moment(mass float32) float32 {
 	sum2 := float32(0)
 
 	println("using bad Moment calculation")
-	offset := vect.Vect{0, 0}
+	offset := Vect{0, 0}
 
 	for i := 0; i < poly.NumVerts; i++ {
 
-		v1 := vect.Add(poly.Verts[i], offset)
-		v2 := vect.Add(poly.Verts[(i+1)%poly.NumVerts], offset)
+		v1 := Add(poly.Verts[i], offset)
+		v2 := Add(poly.Verts[(i+1)%poly.NumVerts], offset)
 
-		a := vect.Cross(v2, v1)
-		b := vect.Dot(v1, v1) + vect.Dot(v1, v2) + vect.Dot(v2, v2)
+		a := Cross(v2, v1)
+		b := Dot(v1, v1) + Dot(v1, v2) + Dot(v2, v2)
 
 		sum1 += a * b
 		sum2 += a
@@ -71,7 +68,7 @@ func (poly *PolygonShape) Moment(mass float32) float32 {
 }
 
 // Sets the vertices offset by the offset and calculates the PolygonAxes.
-func (poly *PolygonShape) SetVerts(verts Vertices, offset vect.Vect) {
+func (poly *PolygonShape) SetVerts(verts Vertices, offset Vect) {
 
 	if verts == nil {
 		log.Printf("Error: no vertices passed!")
@@ -102,13 +99,13 @@ func (poly *PolygonShape) SetVerts(verts Vertices, offset vect.Vect) {
 	}
 
 	for i := 0; i < numVerts; i++ {
-		a := vect.Add(offset, verts[i])
-		b := vect.Add(offset, verts[(i+1)%numVerts])
-		n := vect.Normalize(vect.Perp(vect.Sub(b, a)))
+		a := Add(offset, verts[i])
+		b := Add(offset, verts[(i+1)%numVerts])
+		n := Normalize(Perp(Sub(b, a)))
 
 		poly.Verts[i] = a
 		poly.Axes[i].N = n
-		poly.Axes[i].D = vect.Dot(n, a)
+		poly.Axes[i].D = Dot(n, a)
 	}
 }
 
@@ -139,7 +136,7 @@ func (poly *PolygonShape) Clone2(s *Shape) *PolygonShape {
 }
 
 // Calculates the transformed vertices and axes and the bounding box.
-func (poly *PolygonShape) update(xf transform.Transform) AABB {
+func (poly *PolygonShape) update(xf Transform) AABB {
 	//transform axes
 	{
 		src := poly.Axes
@@ -148,7 +145,7 @@ func (poly *PolygonShape) update(xf transform.Transform) AABB {
 		for i := 0; i < poly.NumVerts; i++ {
 			n := xf.RotateVect(src[i].N)
 			dst[i].N = n
-			dst[i].D = vect.Dot(xf.Position, n) + src[i].D
+			dst[i].D = Dot(xf.Position, n) + src[i].D
 		}
 		/*
 			fmt.Println("")
@@ -163,8 +160,8 @@ func (poly *PolygonShape) update(xf transform.Transform) AABB {
 	{
 		inf := float32(math.Inf(1))
 		aabb := AABB{
-			Lower: vect.Vect{inf, inf},
-			Upper: vect.Vect{-inf, -inf},
+			Lower: Vect{inf, inf},
+			Upper: Vect{-inf, -inf},
 		}
 
 		src := poly.Verts
@@ -174,10 +171,10 @@ func (poly *PolygonShape) update(xf transform.Transform) AABB {
 			v := xf.TransformVect(src[i])
 
 			dst[i] = v
-			aabb.Lower.X = vect.FMin(aabb.Lower.X, v.X)
-			aabb.Upper.X = vect.FMax(aabb.Upper.X, v.X)
-			aabb.Lower.Y = vect.FMin(aabb.Lower.Y, v.Y)
-			aabb.Upper.Y = vect.FMax(aabb.Upper.Y, v.Y)
+			aabb.Lower.X = FMin(aabb.Lower.X, v.X)
+			aabb.Upper.X = FMax(aabb.Upper.X, v.X)
+			aabb.Lower.Y = FMin(aabb.Lower.Y, v.Y)
+			aabb.Upper.Y = FMax(aabb.Upper.Y, v.Y)
 		}
 
 		/*
@@ -191,13 +188,13 @@ func (poly *PolygonShape) update(xf transform.Transform) AABB {
 }
 
 // Returns true if the given point is located inside the box.
-func (poly *PolygonShape) TestPoint(point vect.Vect) bool {
+func (poly *PolygonShape) TestPoint(point Vect) bool {
 	return poly.ContainsVert(point)
 }
 
-func (poly *PolygonShape) ContainsVert(v vect.Vect) bool {
+func (poly *PolygonShape) ContainsVert(v Vect) bool {
 	for _, axis := range poly.TAxes {
-		dist := vect.Dot(axis.N, v) - axis.D
+		dist := Dot(axis.N, v) - axis.D
 		if dist > 0.0 {
 			return false
 		}
@@ -206,12 +203,12 @@ func (poly *PolygonShape) ContainsVert(v vect.Vect) bool {
 	return true
 }
 
-func (poly *PolygonShape) ContainsVertPartial(v, n vect.Vect) bool {
+func (poly *PolygonShape) ContainsVertPartial(v, n Vect) bool {
 	for _, axis := range poly.TAxes {
-		if vect.Dot(axis.N, n) < 0.0 {
+		if Dot(axis.N, n) < 0.0 {
 			continue
 		}
-		dist := vect.Dot(axis.N, v) - axis.D
+		dist := Dot(axis.N, v) - axis.D
 		if dist > 0.0 {
 			return false
 		}
@@ -220,12 +217,12 @@ func (poly *PolygonShape) ContainsVertPartial(v, n vect.Vect) bool {
 	return true
 }
 
-func (poly *PolygonShape) ValueOnAxis(n vect.Vect, d float32) float32 {
+func (poly *PolygonShape) ValueOnAxis(n Vect, d float32) float32 {
 	verts := poly.TVerts
-	min := vect.Dot(n, verts[0])
+	min := Dot(n, verts[0])
 
 	for i := 1; i < poly.NumVerts; i++ {
-		min = vect.FMin(min, vect.Dot(n, verts[i]))
+		min = FMin(min, Dot(n, verts[i]))
 	}
 
 	return min - d

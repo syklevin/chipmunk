@@ -1,7 +1,6 @@
-package transform
+package chipmunk
 
 import (
-	"github.com/syklevin/chipmunk/vect"
 	"math"
 )
 
@@ -32,53 +31,53 @@ func (rot *Rotation) Angle() float32 {
 }
 
 //rotates the input vector.
-func (rot *Rotation) RotateVect(v vect.Vect) vect.Vect {
-	return vect.Vect{
+func (rot *Rotation) RotateVect(v Vect) Vect {
+	return Vect{
 		X: (v.X * rot.C) - (v.Y * rot.S),
 		Y: (v.X * rot.S) + (v.Y * rot.C),
 	}
 }
 
 //rotates the input vector.
-func (rot *Rotation) RotateVectPtr(v *vect.Vect) vect.Vect {
-	return vect.Vect{
+func (rot *Rotation) RotateVectPtr(v *Vect) Vect {
+	return Vect{
 		X: (v.X * rot.C) - (v.Y * rot.S),
 		Y: (v.X * rot.S) + (v.Y * rot.C),
 	}
 }
 
-func (rot *Rotation) RotateVectInv(v vect.Vect) vect.Vect {
-	return vect.Vect{
+func (rot *Rotation) RotateVectInv(v Vect) Vect {
+	return Vect{
 		X: (v.X * rot.C) + (v.Y * rot.S),
 		Y: (-v.X * rot.S) + (v.Y * rot.C),
 	}
 }
 
-func RotateVect(v vect.Vect, r Rotation) vect.Vect {
+func RotateVect(v Vect, r Rotation) Vect {
 	return r.RotateVect(v)
 }
 
-func RotateVectPtr(v *vect.Vect, r *Rotation) vect.Vect {
+func RotateVectPtr(v *Vect, r *Rotation) Vect {
 	return r.RotateVectPtr(v)
 }
 
-func RotateVectInv(v vect.Vect, r Rotation) vect.Vect {
+func RotateVectInv(v Vect, r Rotation) Vect {
 	return r.RotateVectInv(v)
 }
 
 type Transform struct {
-	Position vect.Vect
+	Position Vect
 	Rotation
 }
 
-func NewTransform(pos vect.Vect, angle float32) Transform {
+func NewTransform(pos Vect, angle float32) Transform {
 	return Transform{
 		Position: pos,
 		Rotation: NewRotation(angle),
 	}
 }
 
-func NewTransform2(pos vect.Vect, rot vect.Vect) Transform {
+func NewTransform2(pos Vect, rot Vect) Transform {
 	return Transform{
 		Position: pos,
 		Rotation: Rotation{rot.X, rot.Y},
@@ -86,20 +85,20 @@ func NewTransform2(pos vect.Vect, rot vect.Vect) Transform {
 }
 
 func (xf *Transform) SetIdentity() {
-	xf.Position = vect.Vect{}
+	xf.Position = Vect{}
 	xf.Rotation.SetIdentity()
 }
 
-func (xf *Transform) Set(pos vect.Vect, rot float32) {
+func (xf *Transform) Set(pos Vect, rot float32) {
 	xf.Position = pos
 	xf.SetAngle(rot)
 }
 
 //moves and roates the input vector.
-func (xf *Transform) TransformVect(v vect.Vect) vect.Vect {
-	return vect.Add(xf.Position, xf.RotateVect(v))
+func (xf *Transform) TransformVect(v Vect) Vect {
+	return Add(xf.Position, xf.RotateVect(v))
 }
 
-func (xf *Transform) TransformVectInv(v vect.Vect) vect.Vect {
-	return vect.Add(vect.Mult(xf.Position, -1), xf.RotateVectInv(v))
+func (xf *Transform) TransformVectInv(v Vect) Vect {
+	return Add(Mult(xf.Position, -1), xf.RotateVectInv(v))
 }

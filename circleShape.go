@@ -1,22 +1,17 @@
 package chipmunk
 
-import (
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
-)
-
 type CircleShape struct {
 	Shape *Shape
 	// Center of the circle. Call Update() on the parent shape if changed.
-	Position vect.Vect
+	Position Vect
 	// Radius of the circle. Call Update() on the parent shape if changed.
 	Radius float32
 	// Global center of the circle. Do not touch!
-	Tc vect.Vect
+	Tc Vect
 }
 
 // Creates a new CircleShape with the given center and radius.
-func NewCircle(pos vect.Vect, radius float32) *Shape {
+func NewCircle(pos Vect, radius float32) *Shape {
 	shape := newShape()
 	circle := &CircleShape{
 		Position: pos,
@@ -33,19 +28,19 @@ func (circle *CircleShape) ShapeType() ShapeType {
 }
 
 func (circle *CircleShape) Moment(mass float32) float32 {
-	return (float32(mass) * (0.5 * (circle.Radius * circle.Radius))) + vect.LengthSqr(circle.Position)
+	return (float32(mass) * (0.5 * (circle.Radius * circle.Radius))) + LengthSqr(circle.Position)
 }
 
 // Recalculates the global center of the circle and the the bounding box.
-func (circle *CircleShape) update(xf transform.Transform) AABB {
+func (circle *CircleShape) update(xf Transform) AABB {
 	//global center of the circle
 	center := xf.TransformVect(circle.Position)
 	circle.Tc = center
-	rv := vect.Vect{circle.Radius, circle.Radius}
+	rv := Vect{circle.Radius, circle.Radius}
 
 	return AABB{
-		vect.Sub(center, rv),
-		vect.Add(center, rv),
+		Sub(center, rv),
+		Add(center, rv),
 	}
 }
 
@@ -57,8 +52,8 @@ func (circle *CircleShape) Clone(s *Shape) ShapeClass {
 }
 
 // Returns true if the given point is located inside the circle.
-func (circle *CircleShape) TestPoint(point vect.Vect) bool {
-	d := vect.Sub(point, circle.Tc)
+func (circle *CircleShape) TestPoint(point Vect) bool {
+	d := Sub(point, circle.Tc)
 
-	return vect.Dot(d, d) <= circle.Radius*circle.Radius
+	return Dot(d, d) <= circle.Radius*circle.Radius
 }

@@ -1,8 +1,6 @@
 package chipmunk
 
 import (
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
 	"math"
 	//"fmt"
 )
@@ -34,7 +32,7 @@ type Shape struct {
 	/// Coefficient of friction.
 	u float32
 	/// Surface velocity used when solving for friction.
-	Surface_v vect.Vect
+	Surface_v Vect
 
 	/// User definable data pointer.
 	/// Generally this points to your the game object class so you can access it
@@ -58,7 +56,7 @@ func newShape() *Shape {
 
 }
 
-func (shape *Shape) Velocity() (vect.Vect, bool) {
+func (shape *Shape) Velocity() (Vect, bool) {
 	return shape.Body.v, shape.velocityIndexed
 }
 
@@ -90,5 +88,5 @@ func (shape *Shape) Clone() *Shape {
 
 func (shape *Shape) Update() {
 	//fmt.Println("Rot", shape.Body.rot)
-	shape.BB = shape.ShapeClass.update(transform.NewTransform(shape.Body.p, shape.Body.a))
+	shape.BB = shape.ShapeClass.update(NewTransform(shape.Body.p, shape.Body.a))
 }

@@ -2,8 +2,6 @@ package chipmunk
 
 import (
 	"fmt"
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
 
 	"time"
 )
@@ -46,7 +44,7 @@ type Arbiter struct {
 	u float32
 	/// Calculated value to use for applying surface velocities.
 	/// Override in a pre-solve collision handler for custom behavior.
-	Surface_vr vect.Vect
+	Surface_vr Vect
 
 	state arbiterState
 	stamp time.Duration
@@ -93,7 +91,7 @@ func (arb *Arbiter) update(a, b *Shape, contacts []*Contact, numContacts int) {
 	arb.u = a.u * b.u
 	arb.e = a.e * b.e
 
-	arb.Surface_vr = vect.Sub(a.Surface_v, b.Surface_v)
+	arb.Surface_vr = Sub(a.Surface_v, b.Surface_v)
 
 	if arb.state == arbiterStateCached {
 		arb.state = arbiterStateFirstColl
@@ -112,10 +110,10 @@ func (arb *Arbiter) preStep(inv_dt, slop, bias float32) {
 	for _, con := range arb.Contacts {
 		// Calculate the offsets.
 		x, y := con.p.X, con.p.Y
-		r1 := vect.Vect{x - a.p.X, y - a.p.Y}
-		r2 := vect.Vect{x - b.p.X, y - b.p.Y}
+		r1 := Vect{x - a.p.X, y - a.p.Y}
+		r2 := Vect{x - b.p.X, y - b.p.Y}
 
-		//con.Normal = vect.Vect{-1,0}
+		//con.Normal = Vect{-1,0}
 
 		// Calculate the mass normal and mass tangent.
 		n := con.n
@@ -131,7 +129,7 @@ func (arb *Arbiter) preStep(inv_dt, slop, bias float32) {
 		}
 		con.nMass = 1.0 / value
 
-		n = vect.Perp(con.n)
+		n = Perp(con.n)
 		rcn = (r1.X * n.Y) - (r1.Y * n.X)
 		rcn = a.m_inv + (a.i_inv * rcn * rcn)
 
@@ -152,7 +150,7 @@ func (arb *Arbiter) preStep(inv_dt, slop, bias float32) {
 			con.bias = 0
 		}
 		con.jBias = 0.0
-		con.bounce = vect.Dot(vect.Vect{(-r2.Y*b.w + b.v.X) - (-r1.Y*a.w + a.v.X), (r2.X*b.w + b.v.Y) - (r1.X*a.w + a.v.Y)}, con.n) * arb.e
+		con.bounce = Dot(Vect{(-r2.Y*b.w + b.v.X) - (-r1.Y*a.w + a.v.X), (r2.X*b.w + b.v.Y) - (r1.X*a.w + a.v.Y)}, con.n) * arb.e
 		con.r1 = r1
 		con.r2 = r2
 	}
@@ -167,17 +165,17 @@ func (arb *Arbiter) preStep2(inv_dt, slop, bias float32) {
 		con := arb.Contacts[i]
 
 		// Calculate the offsets.
-		con.r1 = vect.Sub(con.p, a.p)
-		con.r2 = vect.Sub(con.p, b.p)
+		con.r1 = Sub(con.p, a.p)
+		con.r2 = Sub(con.p, b.p)
 
-		//con.Normal = vect.Vect{-1,0}
+		//con.Normal = Vect{-1,0}
 
 		// Calculate the mass normal and mass tangent.
 		con.nMass = 1.0 / k_scalar(a, b, con.r1, con.r2, con.n)
-		con.tMass = 1.0 / k_scalar(a, b, con.r1, con.r2, vect.Perp(con.n))
+		con.tMass = 1.0 / k_scalar(a, b, con.r1, con.r2, Perp(con.n))
 
 		// Calculate the target bias velocity.
-		con.bias = -bias * inv_dt * vect.FMin(0.0, con.dist+slop)
+		con.bias = -bias * inv_dt * FMin(0.0, con.dist+slop)
 		con.jBias = 0.0
 		//con.jtAcc = 0
 		//con.jnAcc = 0
@@ -196,14 +194,14 @@ func (arb *Arbiter) applyCachedImpulse(dt_coef float32) {
 	//println("asd")
 	a := arb.ShapeA.Body
 	b := arb.ShapeB.Body
-	var j vect.Vect
+	var j Vect
 
 	for _, con := range arb.Contacts {
-		//transform.RotateVect(con.n, transform.Rotation{con.jnAcc, con.jtAcc})
+		//RotateVect(con.n, Rotation{con.jnAcc, con.jtAcc})
 		j.X = ((con.n.X * con.jnAcc) - (con.n.Y * con.jtAcc)) * dt_coef
 		j.Y = ((con.n.X * con.jtAcc) + (con.n.Y * con.jnAcc)) * dt_coef
 
-		//apply_impulses(a, b, con.r1, con.r2, vect.Mult(j, dt_coef))
+		//apply_impulses(a, b, con.r1, con.r2, Mult(j, dt_coef))
 		a.v.X = (-j.X * a.m_inv) + a.v.X
 		a.v.Y = (-j.Y * a.m_inv) + a.v.Y
 		a.w += a.i_inv * ((con.r1.X * -j.Y) - (con.r1.Y * -j.X))
@@ -223,8 +221,8 @@ func (arb *Arbiter) applyCachedImpulse2(dt_coef float32) {
 	a := arb.ShapeA.Body
 	b := arb.ShapeB.Body
 	for _, con := range arb.Contacts {
-		j := transform.RotateVect(con.n, transform.Rotation{con.jnAcc, con.jtAcc})
-		apply_impulses(a, b, con.r1, con.r2, vect.Mult(j, dt_coef))
+		j := RotateVect(con.n, Rotation{con.jnAcc, con.jtAcc})
+		apply_impulses(a, b, con.r1, con.r2, Mult(j, dt_coef))
 	}
 }
 
@@ -242,7 +240,7 @@ func (arb *Arbiter) applyImpulse() {
 func (arb *Arbiter) applyImpulse() {
 	a := arb.ShapeA.Body
 	b := arb.ShapeB.Body
-	vr := vect.Vect{}
+	vr := Vect{}
 
 	for _, con := range arb.Contacts {
 		n := con.n
@@ -316,37 +314,37 @@ func (arb *Arbiter) applyImpulse3() {
 		r2 := con.r2
 
 		// Calculate the relative bias velocities.
-		vb1 := vect.Add(a.v_bias, vect.Mult(vect.Perp(r1), a.w_bias))
-		vb2 := vect.Add(b.v_bias, vect.Mult(vect.Perp(r2), b.w_bias))
-		vbn := vect.Dot(vect.Sub(vb2, vb1), n)
+		vb1 := Add(a.v_bias, Mult(Perp(r1), a.w_bias))
+		vb2 := Add(b.v_bias, Mult(Perp(r2), b.w_bias))
+		vbn := Dot(Sub(vb2, vb1), n)
 
 		// Calculate the relative velocity.
 		vr := relative_velocity(a, b, r1, r2)
-		vrn := vect.Dot(vr, n)
+		vrn := Dot(vr, n)
 		// Calculate the relative tangent velocity.
-		vrt := vect.Dot(vect.Add(vr, arb.Surface_vr), vect.Perp(n))
+		vrt := Dot(Add(vr, arb.Surface_vr), Perp(n))
 
 		// Calculate and clamp the bias impulse.
 		jbn := (con.bias - vbn) * con.nMass
 		jbnOld := con.jBias
-		con.jBias = vect.FMax(jbnOld+jbn, 0.0)
+		con.jBias = FMax(jbnOld+jbn, 0.0)
 
 		// Calculate and clamp the normal impulse.
 		jn := -(con.bounce + vrn) * con.nMass
 		jnOld := con.jnAcc
-		con.jnAcc = vect.FMax(jnOld+jn, 0.0)
+		con.jnAcc = FMax(jnOld+jn, 0.0)
 
 		// Calculate and clamp the friction impulse.
 		jtMax := arb.u * con.jnAcc
 		jt := -vrt * con.tMass
 		jtOld := con.jtAcc
-		con.jtAcc = vect.FClamp(jtOld+jt, -jtMax, jtMax)
+		con.jtAcc = FClamp(jtOld+jt, -jtMax, jtMax)
 
 		// Apply the bias impulse.
-		apply_bias_impulses(a, b, r1, r2, vect.Mult(n, con.jBias-jbnOld))
+		apply_bias_impulses(a, b, r1, r2, Mult(n, con.jBias-jbnOld))
 
 		// Apply the final impulse.
-		apply_impulses(a, b, r1, r2, transform.RotateVect(n, transform.Rotation{con.jnAcc - jnOld, con.jtAcc - jtOld}))
+		apply_impulses(a, b, r1, r2, RotateVect(n, Rotation{con.jnAcc - jnOld, con.jtAcc - jtOld}))
 
 	}
 }

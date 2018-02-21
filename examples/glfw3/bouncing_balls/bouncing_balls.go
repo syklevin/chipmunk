@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/TheZeroSlave/chipmunk"
-	"github.com/syklevin/chipmunk/vect"
-	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/glfw/v3.1/glfw"
 	"log"
 	"math"
 	"math/rand"
 	"os"
 	"runtime"
 	"time"
+
+	"github.acsdev.net/wraven/chipmunk"
+	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/glfw/v3.1/glfw"
 )
 
 var (
@@ -69,11 +69,11 @@ func draw() {
 
 func addBall() {
 	x := rand.Intn(350-115) + 115
-	ball := chipmunk.NewCircle(vect.Vector_Zero, float32(ballRadius))
+	ball := chipmunk.NewCircle(chipmunk.Vector_Zero, float32(ballRadius))
 	ball.SetElasticity(0.95)
 
 	body := chipmunk.NewBody(float32(ballMass), ball.Moment(float32(ballMass)))
-	body.SetPosition(vect.Vect{float32(x), 600.0})
+	body.SetPosition(chipmunk.Vect{float32(x), 600.0})
 	body.SetAngle(float32(rand.Float32() * 2 * math.Pi))
 
 	body.AddShape(ball)
@@ -99,12 +99,12 @@ func step(dt float32) {
 // createBodies sets up the chipmunk space and static bodies
 func createBodies() {
 	space = chipmunk.NewSpace()
-	space.Gravity = vect.Vect{0, -900}
+	space.Gravity = chipmunk.Vect{0, -900}
 
 	staticBody := chipmunk.NewBodyStatic()
 	staticLines = []*chipmunk.Shape{
-		chipmunk.NewSegment(vect.Vect{111.0, 280.0}, vect.Vect{407.0, 246.0}, 0),
-		chipmunk.NewSegment(vect.Vect{407.0, 246.0}, vect.Vect{407.0, 343.0}, 0),
+		chipmunk.NewSegment(chipmunk.Vect{111.0, 280.0}, chipmunk.Vect{407.0, 246.0}, 0),
+		chipmunk.NewSegment(chipmunk.Vect{407.0, 246.0}, chipmunk.Vect{407.0, 343.0}, 0),
 	}
 	for _, segment := range staticLines {
 		segment.SetElasticity(0.6)
@@ -140,7 +140,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	window.SetFramebufferSizeCallback(onResize)
+
+	//window.SetFramebufferSizeCallback(onResize)
+
 	window.MakeContextCurrent()
 
 	if err := gl.Init(); err != nil {

@@ -1,26 +1,21 @@
 package chipmunk
 
-import (
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
-)
-
 // Convenience wrapper around PolygonShape.
 type BoxShape struct {
 	Shape *Shape
 	// The polygon that represents this box. Do not touch!
 	Polygon *PolygonShape
-	verts   [4]vect.Vect
+	verts   [4]Vect
 	// The width of the box. Call UpdatePoly() if changed.
 	Width float32
 	// The height of the box. Call UpdatePoly() if changed.
 	Height float32
 	// The center of the box. Call UpdatePoly() if changed.
-	Position vect.Vect
+	Position Vect
 }
 
 // Creates a new BoxShape with given position, width and height.
-func NewBox(pos vect.Vect, w, h float32) *Shape {
+func NewBox(pos Vect, w, h float32) *Shape {
 	shape := newShape()
 
 	box := &BoxShape{
@@ -41,7 +36,7 @@ func NewBox(pos vect.Vect, w, h float32) *Shape {
 		hh = -hh
 	}
 
-	box.verts = [4]vect.Vect{
+	box.verts = [4]Vect{
 		{-hw, -hh},
 		{-hw, hh},
 		{hw, hh},
@@ -71,7 +66,7 @@ func (box *BoxShape) UpdatePoly() {
 		hh = -hh
 	}
 
-	box.verts = [4]vect.Vect{
+	box.verts = [4]Vect{
 		{-hw, -hh},
 		{-hw, hh},
 		{hw, hh},
@@ -97,11 +92,11 @@ func (box *BoxShape) Clone(s *Shape) ShapeClass {
 }
 
 // Recalculates the transformed vertices, axes and the bounding box.
-func (box *BoxShape) update(xf transform.Transform) AABB {
+func (box *BoxShape) update(xf Transform) AABB {
 	return box.Polygon.update(xf)
 }
 
 // Returns true if the given point is located inside the box.
-func (box *BoxShape) TestPoint(point vect.Vect) bool {
+func (box *BoxShape) TestPoint(point Vect) bool {
 	return box.Polygon.TestPoint(point)
 }

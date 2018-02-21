@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
 	//"github.com/davecgh/go-spew/spew"
 	"math"
 	"time"
@@ -20,7 +18,7 @@ type Space struct {
 	Iterations int
 
 	/// Gravity to pass to rigid bodies when integrating velocity.
-	Gravity vect.Vect
+	Gravity Vect
 
 	/// Linear damping rate expressed as the fraction of linear velocity bodies retain each second.
 	/// A value of 0.9 would mean that each body's velocity will drop 10% per second.
@@ -99,7 +97,7 @@ func NewSpace() (space *Space) {
 	space = &Space{}
 	space.Iterations = 20
 
-	space.Gravity = vect.Vector_Zero
+	space.Gravity = Vector_Zero
 
 	space.LinearDamping = 1.0
 	space.AngularDamping = 1.0
@@ -242,7 +240,7 @@ func (space *Space) Step(dt float32) {
 	for _, body := range bodies {
 		if body.Enabled {
 			if body.IgnoreGravity {
-				body.UpdateVelocity(vect.Vector_Zero, ldamping, adamping, dt)
+				body.UpdateVelocity(Vector_Zero, ldamping, adamping, dt)
 				continue
 			}
 			body.UpdateVelocity(space.Gravity, ldamping, adamping, dt)
@@ -363,7 +361,7 @@ func (space *Space) QueryStatic(obj Indexable, aabb AABB, fnc SpatialIndexQueryF
 	space.staticShapes.Query(obj, aabb, fnc)
 }
 
-func (space *Space) SpacePointQueryFirst(point vect.Vect, layers Layer, group Group, checkSensors bool) (shape *Shape) {
+func (space *Space) SpacePointQueryFirst(point Vect, layers Layer, group Group, checkSensors bool) (shape *Shape) {
 
 	found := false
 	pointFunc := func(a, b Indexable) {
@@ -387,8 +385,8 @@ func (space *Space) SpacePointQueryFirst(point vect.Vect, layers Layer, group Gr
 		}
 	}
 
-	dot := NewCircle(vect.Vector_Zero, 0.5)
-	dot.BB = dot.update(transform.NewTransform(point, 0))
+	dot := NewCircle(Vector_Zero, 0.5)
+	dot.BB = dot.update(NewTransform(point, 0))
 	dot.Layer = layers
 	dot.Group = group
 	space.staticShapes.Query(dot, dot.AABB(), pointFunc)
@@ -400,7 +398,7 @@ func (space *Space) SpacePointQueryFirst(point vect.Vect, layers Layer, group Gr
 	return
 }
 
-func (space *Space) SpacePointQuery(point vect.Vect, layers Layer, group Group, checkSensors bool) (shapes []*Shape) {
+func (space *Space) SpacePointQuery(point Vect, layers Layer, group Group, checkSensors bool) (shapes []*Shape) {
 
 	pointFunc := func(a, b Indexable) {
 		shapeB := b.Shape()
@@ -419,8 +417,8 @@ func (space *Space) SpacePointQuery(point vect.Vect, layers Layer, group Group, 
 		}
 	}
 
-	dot := NewCircle(vect.Vector_Zero, 0.5)
-	dot.BB = dot.update(transform.NewTransform(point, 0))
+	dot := NewCircle(Vector_Zero, 0.5)
+	dot.BB = dot.update(NewTransform(point, 0))
 	dot.Layer = layers
 	dot.Group = group
 	space.staticShapes.Query(dot, dot.AABB(), pointFunc)
@@ -430,7 +428,7 @@ func (space *Space) SpacePointQuery(point vect.Vect, layers Layer, group Group, 
 }
 
 /*
-func (space *Space) SpacePointQuery(point vect.Vect, layers Layer, group Group, cpSpacePointQueryFunc func, void *data)
+func (space *Space) SpacePointQuery(point Vect, layers Layer, group Group, cpSpacePointQueryFunc func, void *data)
 {
 	struct PointQueryContext context = {point, layers, group, func, data};
 	cpBB bb = cpBBNewForCircle(point, 0.0f);
@@ -598,7 +596,7 @@ func (space *Space) CreateArbiter(sa, sb *Shape) *Arbiter {
 	arb.BodyA = arb.ShapeA.Body
 	arb.BodyB = arb.ShapeB.Body
 
-	arb.Surface_vr = vect.Vect{}
+	arb.Surface_vr = Vect{}
 	arb.stamp = 0
 	//arb.nodeA = new(ArbiterEdge)
 	//arb.nodeB = new(ArbiterEdge)
@@ -729,8 +727,8 @@ func queryReject(a, b *Shape) bool {
 }
 
 type RayCast struct {
-	begin vect.Vect
-	dir   vect.Vect
+	begin Vect
+	dir   Vect
 }
 
 type RayCastHit struct {
@@ -742,19 +740,19 @@ const EPS = 0.00001
 
 func RayAgainstPolygon(c *RayCast, poly *PolygonShape, outT *float32) bool {
 	for i, axis := range poly.TAxes {
-		cosAngle := vect.Dot(c.dir, axis.N)
+		cosAngle := Dot(c.dir, axis.N)
 		if cosAngle < EPS && cosAngle >= -EPS {
 			return false
 		}
-		t := -(vect.Dot(c.begin, axis.N) - axis.D) / cosAngle
+		t := -(Dot(c.begin, axis.N) - axis.D) / cosAngle
 		if t > 1.0 || t < 0.0 {
 			return false
 		}
 		//check if point belongs to polygon line
-		point := vect.Add(c.begin, vect.Mult(c.dir, t))
+		point := Add(c.begin, Mult(c.dir, t))
 		v1 := poly.TVerts[i]
 		v2 := poly.TVerts[(i+1)%poly.NumVerts]
-		polyDir := vect.Sub(v2, v1)
+		polyDir := Sub(v2, v1)
 
 		polyT := float32(-1.0)
 		if polyDir.X < EPS || polyDir.X > -EPS {
@@ -771,10 +769,10 @@ func RayAgainstPolygon(c *RayCast, poly *PolygonShape, outT *float32) bool {
 }
 
 func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
-	fromRayToCircle := vect.Sub(cast.begin, circle.Tc)
-	a := vect.Dot(cast.dir, cast.dir)
-	b := 2.0 * vect.Dot(fromRayToCircle, cast.dir)
-	c := vect.Dot(fromRayToCircle, fromRayToCircle) - circle.Radius*circle.Radius
+	fromRayToCircle := Sub(cast.begin, circle.Tc)
+	a := Dot(cast.dir, cast.dir)
+	b := 2.0 * Dot(fromRayToCircle, cast.dir)
+	c := Dot(fromRayToCircle, fromRayToCircle) - circle.Radius*circle.Radius
 
 	D := b*b - 4.0*a*c
 	if D < 0.0 {
@@ -796,7 +794,7 @@ func RayAgainstCircle(cast *RayCast, circle *CircleShape, outT *float32) bool {
 	return false
 }
 
-func (space *Space) RayCastAll(begin vect.Vect, direction vect.Vect) []*RayCastHit {
+func (space *Space) RayCastAll(begin Vect, direction Vect) []*RayCastHit {
 	hits := []*RayCastHit{}
 
 	rayCast := &RayCast{

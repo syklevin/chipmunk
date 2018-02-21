@@ -2,15 +2,12 @@ package chipmunk
 
 import (
 	"math"
-
-	"github.com/syklevin/chipmunk/transform"
-	"github.com/syklevin/chipmunk/vect"
 )
 
 type DampedSpring struct {
 	BasicConstraint
 
-	Anchor1, Anchor2 vect.Vect
+	Anchor1, Anchor2 Vect
 	RestLength       float32
 	Stiffness        float32
 	Damping          float32
@@ -19,9 +16,9 @@ type DampedSpring struct {
 	targetVRN float32
 	vCoef     float32
 
-	r1, r2 vect.Vect
+	r1, r2 Vect
 	nMass  float32
-	n      vect.Vect
+	n      Vect
 }
 
 func defaultSpringForce(spring *DampedSpring, dist float32) float32 {
@@ -29,7 +26,7 @@ func defaultSpringForce(spring *DampedSpring, dist float32) float32 {
 }
 
 func NewDampedSpring(a, b *Body,
-	anchor1, anchor2 vect.Vect,
+	anchor1, anchor2 Vect,
 	restLength, stiffness, damping float32) *DampedSpring {
 	return &DampedSpring{
 		BasicConstraint: NewConstraint(a, b),
@@ -46,15 +43,15 @@ func (spring *DampedSpring) PreStep(dt float32) {
 	a := spring.BodyA
 	b := spring.BodyB
 
-	spring.r1 = transform.RotateVect(spring.Anchor1, transform.Rotation{a.rot.X, a.rot.Y})
-	spring.r2 = transform.RotateVect(spring.Anchor2, transform.Rotation{a.rot.X, a.rot.Y})
+	spring.r1 = RotateVect(spring.Anchor1, Rotation{a.rot.X, a.rot.Y})
+	spring.r2 = RotateVect(spring.Anchor2, Rotation{a.rot.X, a.rot.Y})
 
-	delta := vect.Sub(vect.Add(b.p, spring.r2), vect.Add(a.p, spring.r1))
-	dist := vect.Length(delta)
+	delta := Sub(Add(b.p, spring.r2), Add(a.p, spring.r1))
+	dist := Length(delta)
 	if dist == 0 {
 		dist = float32(math.Inf(1))
 	}
-	spring.n = vect.Mult(delta, 1.0/dist)
+	spring.n = Mult(delta, 1.0/dist)
 
 	k := k_scalar(a, b, spring.r1, spring.r2, spring.n)
 	spring.nMass = 1.0 / k
@@ -63,7 +60,7 @@ func (spring *DampedSpring) PreStep(dt float32) {
 	spring.vCoef = float32(1.0 - math.Exp(float64(-spring.Damping*dt*k)))
 
 	fSpring := spring.SpringForceFunc(spring, dist)
-	apply_impulses(a, b, spring.r1, spring.r2, vect.Mult(spring.n, fSpring*dt))
+	apply_impulses(a, b, spring.r1, spring.r2, Mult(spring.n, fSpring*dt))
 }
 
 func (spring *DampedSpring) ApplyCachedImpulse(_ float32) {}
@@ -81,7 +78,7 @@ func (spring *DampedSpring) ApplyImpulse() {
 	vDamp := (spring.targetVRN - vrn) * spring.vCoef
 	spring.targetVRN = vrn + vDamp
 
-	apply_impulses(a, b, spring.r1, spring.r2, vect.Mult(spring.n, vDamp*spring.nMass))
+	apply_impulses(a, b, spring.r1, spring.r2, Mult(spring.n, vDamp*spring.nMass))
 }
 
 func (spring *DampedSpring) Impulse() float32 {

@@ -1,13 +1,9 @@
 package chipmunk
 
-import (
-	"github.com/syklevin/chipmunk/vect"
-)
-
 //axis aligned bounding box.
 type AABB struct {
 	Lower, //l b
-	Upper vect.Vect // r t
+	Upper Vect // r t
 }
 
 /*
@@ -22,12 +18,12 @@ func (aabb *AABB) Valid() bool {
 }
 
 func NewAABB(l, b, r, t float32) AABB {
-	return AABB{vect.Vect{l, b}, vect.Vect{r, t}}
+	return AABB{Vect{l, b}, Vect{r, t}}
 }
 
 //returns the center of the aabb
-func (aabb *AABB) Center() vect.Vect {
-	return vect.Mult(vect.Add(aabb.Lower, aabb.Upper), 0.5)
+func (aabb *AABB) Center() Vect {
+	return Mult(Add(aabb.Lower, aabb.Upper), 0.5)
 }
 
 //returns if other is contained inside this aabb.
@@ -47,43 +43,43 @@ func (aabb *AABB) ContainsPtr(other *AABB) bool {
 }
 
 //returns if v is contained inside this aabb.
-func (aabb *AABB) ContainsVect(v vect.Vect) bool {
+func (aabb *AABB) ContainsVect(v Vect) bool {
 	return aabb.Lower.X <= v.X &&
 		aabb.Upper.X >= v.X &&
 		aabb.Lower.Y <= v.Y &&
 		aabb.Upper.Y >= v.Y
 }
 
-func (aabb *AABB) Extents() vect.Vect {
-	return vect.Mult(vect.Sub(aabb.Upper, aabb.Lower), .5)
+func (aabb *AABB) Extents() Vect {
+	return Mult(Sub(aabb.Upper, aabb.Lower), .5)
 }
 
 func (aabb *AABB) Perimeter() float32 {
-	w := vect.Sub(aabb.Upper, aabb.Lower)
+	w := Sub(aabb.Upper, aabb.Lower)
 	return 2 * (w.X + w.Y)
 }
 
 //returns an AABB that holds both a and b.
 func Combine(a, b AABB) AABB {
 	return AABB{
-		vect.Min(a.Lower, b.Lower),
-		vect.Max(a.Upper, b.Upper),
+		Min(a.Lower, b.Lower),
+		Max(a.Upper, b.Upper),
 	}
 }
 
 //returns an AABB that holds both a and b.
 func CombinePtr(a, b *AABB) AABB {
 	return AABB{
-		vect.Min(a.Lower, b.Lower),
-		vect.Max(a.Upper, b.Upper),
+		Min(a.Lower, b.Lower),
+		Max(a.Upper, b.Upper),
 	}
 }
 
 //returns an AABB that holds both a and v.
-func Expand(a AABB, v vect.Vect) AABB {
+func Expand(a AABB, v Vect) AABB {
 	return AABB{
-		vect.Min(a.Lower, v),
-		vect.Max(a.Upper, v),
+		Min(a.Lower, v),
+		Max(a.Upper, v),
 	}
 }
 
@@ -93,25 +89,25 @@ func (aabb *AABB) Area() float32 {
 }
 
 func MergedArea(a, b AABB) float32 {
-	return (vect.FMax(a.Upper.X, b.Upper.X) - vect.FMin(a.Lower.X, b.Lower.X)) * (vect.FMax(a.Upper.Y, b.Upper.Y) - vect.FMin(a.Lower.Y, b.Lower.Y))
+	return (FMax(a.Upper.X, b.Upper.X) - FMin(a.Lower.X, b.Lower.X)) * (FMax(a.Upper.Y, b.Upper.Y) - FMin(a.Lower.Y, b.Lower.Y))
 }
 
 func MergedAreaPtr(a, b *AABB) float32 {
-	return (vect.FMax(a.Upper.X, b.Upper.X) - vect.FMin(a.Lower.X, b.Lower.X)) * (vect.FMax(a.Upper.Y, b.Upper.Y) - vect.FMin(a.Lower.Y, b.Lower.Y))
+	return (FMax(a.Upper.X, b.Upper.X) - FMin(a.Lower.X, b.Lower.X)) * (FMax(a.Upper.Y, b.Upper.Y) - FMin(a.Lower.Y, b.Lower.Y))
 }
 
 func ProximityPtr(a, b *AABB) float32 {
-	return vect.FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + vect.FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
+	return FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
 }
 
 func Proximity(a, b AABB) float32 {
-	return vect.FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + vect.FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
+	return FAbs(a.Lower.X+a.Upper.X-b.Lower.X-b.Upper.X) + FAbs(a.Lower.Y+a.Upper.Y-b.Lower.Y-b.Upper.Y)
 }
 
 func TestOverlap2(a, b AABB) bool {
 
-	d1 := vect.Sub(b.Lower, a.Upper)
-	d2 := vect.Sub(a.Lower, b.Upper)
+	d1 := Sub(b.Lower, a.Upper)
+	d2 := Sub(a.Lower, b.Upper)
 
 	if d1.X > 0.0 || d1.Y > 0.0 {
 		return false
