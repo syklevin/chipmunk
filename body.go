@@ -170,7 +170,7 @@ func (body *Body) SetMoment(moment float32) {
 }
 
 func (body *Body) Moment() float32 {
-	return float32(body.i)
+	return body.i
 }
 
 func (body *Body) MomentIsInf() bool {
@@ -183,7 +183,7 @@ func (body *Body) SetAngle(angle float32) {
 }
 
 func (body *Body) AddAngle(angle float32) {
-	body.SetAngle(float32(angle) + body.Angle())
+	body.SetAngle(angle + body.Angle())
 }
 
 func (body *Body) Mass() float32 {
@@ -203,6 +203,10 @@ func (body *Body) BodyActivate() {
 
 	if !body.IsRogue() {
 		body.node.IdleTime = 0
+		root := body.ComponentRoot()
+		if root != nil {
+			root.ComponentActive()
+		}
 	}
 }
 
@@ -234,6 +238,18 @@ func (body *Body) ComponentActive() {
 
 	//for i,sleeping
 	//cpArrayDeleteObj(space->sleepingComponents, root);
+	foundIndex := -1
+	for i, sleepBody := range space.sleepingComponents {
+		if sleepBody == b {
+			foundIndex = i
+			break
+		}
+	}
+	if foundIndex != -1 {
+		space.sleepingComponents = append(space.sleepingComponents[:foundIndex],
+			space.sleepingComponents[foundIndex+1:]...)
+	}
+
 }
 
 func (body *Body) IsRogue() bool {
@@ -259,31 +275,33 @@ func (body *Body) SetPosition(pos Vect) {
 }
 
 func (body *Body) AddForce(x, y float32) {
-	body.f.X += float32(x)
-	body.f.Y += float32(y)
+	body.BodyActivate()
+	body.f.X += x
+	body.f.Y += y
 }
 
 func (body *Body) SetForce(x, y float32) {
-	body.f.X = float32(x)
-	body.f.Y = float32(y)
+	body.BodyActivate()
+	body.f.X = x
+	body.f.Y = y
 }
 
 func (body *Body) AddVelocity(x, y float32) {
-	body.v.X += float32(x)
-	body.v.Y += float32(y)
+	body.v.X += x
+	body.v.Y += y
 }
 
 func (body *Body) SetVelocity(x, y float32) {
-	body.v.X = float32(x)
-	body.v.Y = float32(y)
+	body.v.X = x
+	body.v.Y = y
 }
 
 func (body *Body) AddTorque(t float32) {
-	body.t += float32(t)
+	body.t += t
 }
 
 func (body *Body) Torque() float32 {
-	return float32(body.t)
+	return body.t
 }
 
 func (body *Body) VBias() Vect {
@@ -291,7 +309,7 @@ func (body *Body) VBias() Vect {
 }
 
 func (body *Body) WBias() float32 {
-	return float32(body.w_bias)
+	return body.w_bias
 }
 
 func (body *Body) SetVBias(v Vect) {
@@ -299,23 +317,23 @@ func (body *Body) SetVBias(v Vect) {
 }
 
 func (body *Body) SetWBias(w float32) {
-	body.w_bias = float32(w)
+	body.w_bias = w
 }
 
 func (body *Body) AngularVelocity() float32 {
-	return float32(body.w)
+	return body.w
 }
 
 func (body *Body) SetTorque(t float32) {
-	body.t = float32(t)
+	body.t = t
 }
 
 func (body *Body) AddAngularVelocity(w float32) {
-	body.w += float32(w)
+	body.w += w
 }
 
 func (body *Body) SetAngularVelocity(w float32) {
-	body.w = float32(w)
+	body.w = w
 }
 
 func (body *Body) Velocity() Vect {
@@ -331,7 +349,7 @@ func (body *Body) Angle() float32 {
 }
 
 func (body *Body) Rot() (rx, ry float32) {
-	return float32(body.rot.X), float32(body.rot.Y)
+	return body.rot.X, body.rot.Y
 }
 
 func (body *Body) UpdatePosition(dt float32) {

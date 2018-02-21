@@ -258,9 +258,8 @@ func circle2segmentFunc(contacts []*Contact, circle *CircleShape, segment *Segme
 			if dn >= 0.0 {
 				n.Mult(-1)
 			}
-			con := contacts[0]
 			pos := Add(circle.Tc, Mult(n, circle.Radius+dist*0.5))
-			con.reset(pos, n, dist, 0)
+			contacts[0].reset(pos, n, dist, 0)
 			return 1
 		} else {
 			if dt < (dtMax + rsum) {
